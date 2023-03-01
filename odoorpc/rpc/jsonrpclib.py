@@ -7,6 +7,11 @@ import json
 import logging
 import random
 import sys
+import urllib
+
+# Get urlib number of reties from environment variable
+import os
+URLLIB_NUM_RETRIES = os.environ.get('URLLIB_NUM_RETRIES', 30)
 
 # Python 2
 if sys.version_info[0] < 3:
@@ -110,7 +115,15 @@ class ProxyJSON(Proxy):
         data_json = json.dumps(data)
         request = Request(url=full_url, data=encode_data(data_json))
         request.add_header('Content-Type', 'application/json')
-        response = self._opener.open(request, timeout=self._timeout)
+        # Hanfle URLError without while loop to avoid infinite loop
+        for i in range(URLLIB_NUM_RETRIES):
+            try:
+                response = self._opener.open(request, timeout=self._timeout)
+                break
+            except urllib.error.URLError as e:
+                print(f"handling http error {e}")
+                print(f"retrying {i+1} of {URLLIB_NUM_RETRIES}")
+            
         if not self._deserialize:
             return response
         result = json.load(decode_data(response))
