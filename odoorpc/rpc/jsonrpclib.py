@@ -11,7 +11,7 @@ import urllib
 
 # Get urlib number of reties from environment variable
 import os
-URLLIB_NUM_RETRIES = os.environ.get('URLLIB_NUM_RETRIES', 30)
+URLLIB_NUM_RETRIES = int(os.environ.get('URLLIB_NUM_RETRIES', 30))
 
 # Python 2
 if sys.version_info[0] < 3:
